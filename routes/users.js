@@ -2,12 +2,11 @@ var express = require('express');
 var router = express.Router();
 const User = require('../models/userModel');
 
-/* GET users listing. */
 
 router.get('/createUser', (req, res) => {
   const newUser = new User({
-    email: 'daniel66@gmail.com',
-    password: '11223344',
+    email: 'abcd12@gmail.com',
+    password: '12345',
   });
 
   newUser.save()
