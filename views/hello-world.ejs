@@ -1,14 +1,18 @@
-  
-<!DOCTYPE html>
- <html>
-    <head>
-        <title>MashupStack</title>
-          <link rel="stylesheet" href="/stylesheets/style.css">
-    </head>
-    <body>
-        <h1 style="color:red;">Hello World</h1>
-        <p>Welcome Everyone!!!</p>
-        <p class="highlight">Lets learn Express</p>
-        <img src="/images/express.png" alt="'Express js' in white background" style="width: 750px;height: 300px;">
-    </body>
+ <!DOCTYPE html>
+ <html lang="en">
+ <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Template</title>
+ </head>
+ <body>
+     <% if (count > 20) { %>
+         <p>Salary is <%= count %></p>
+       <% } else if (count < 0) { %>
+         <p>Invalid salary supplied. Must be greater than 0.</p>
+         <p>Count is <%= count %></p>
+       <% } else { %>
+         <p>Count is not enough</p>
+       <% } %>
+ </body>
  </html>
