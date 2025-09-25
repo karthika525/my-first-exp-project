@@ -6,12 +6,18 @@ var logger = require('morgan');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
+const db = require('./database/db');
+const expressLayouts = require('express-ejs-layouts');
 
 var app = express();
-const db = require('./database/db')
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
+
+//layout setup
+app.use(expressLayouts);
+app.set('layout', 'layouts/main-layout');
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -37,5 +43,4 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
-
 module.exports = app;
