@@ -6,10 +6,13 @@
     <title>Template</title>
  </head>
  <body>
-
-    <% for (const student of students) { %>
-        <p><%= student %></p>
-      <% } %>
-
+       <h1>Login</h1>
+       <form action="/createUser" method="get">
+           <label>Email</label><br>
+           <input type="email" name="email"><br>
+           <label>Password</label><br>
+           <input type="password" name="password"><br>
+           <input type="submit" value="Submit">
+       </form>
  </body>
  </html>
