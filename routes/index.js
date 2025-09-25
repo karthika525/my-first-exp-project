@@ -13,9 +13,9 @@ router.get('/getUser', function (req,res) {
       res.status(500).send("Error fetching users");
     });
 });
-//Update single data
-User.updateOne({ _id: '68d427c0452343fb4b3a3625'},{ email:'vshnv23@example.com' }).then(result => {console.log('Data updated successfully');})
-//Update Many data
-User.updateMany({ email: { $regex: /@gmail.com/ }},{ password:'newpassword' }).then(result => {console.log('Data’s updated successfully'); })
+//Delete single data
+User.deleteOne({ _id: '68d56bbf776be9718775557b'}).then(result => { console.log('Data deleted successfully');})
+//Delete Many data
+User.deleteMany({ email: { $regex: /@gmail.com/ } }).then(result => {console.log('Data’s deleted successfully');  })
 
 module.exports = router;
