@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
  <html lang="en">
  <head>
     <meta charset="UTF-8">
@@ -6,13 +6,10 @@
     <title>Template</title>
  </head>
  <body>
-     <% if (count > 20) { %>
-         <p>Salary is <%= count %></p>
-       <% } else if (count < 0) { %>
-         <p>Invalid salary supplied. Must be greater than 0.</p>
-         <p>Count is <%= count %></p>
-       <% } else { %>
-         <p>Count is not enough</p>
-       <% } %>
+
+    <% for (const student of students) { %>
+        <p><%= student %></p>
+      <% } %>
+
  </body>
  </html>

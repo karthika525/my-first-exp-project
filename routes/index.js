@@ -1,10 +1,10 @@
 var express = require('express');
- var router = express.Router();
+var router = express.Router();
 
+router.get('/', function(req, res) {
+  var  students = ['Ajay', 'Vineeth','Sudheesh']
 
-  router.get('/', function(req, res) {
-    var count = 25
-    res.render("hello-world", {count : count});
-  });
+  res.render("hello-world", {students: students});
+});
 
-  module.exports = router;
+module.exports = router;
