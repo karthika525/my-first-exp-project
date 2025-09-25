@@ -1,17 +1,16 @@
 var express = require('express');
 var router = express.Router();
-
-
+const User = require('../models/userModel');
 const { validationResult } = require('express-validator');
 const {validateEmail,validatePassword} = require('./customValidators')
 
 router.get('/', function(req, res) {
 
-
   res.render("hello-world", { errors: [] });
 
-
 });
+
+//route for handling form submission with validations
 
 router.post('/createUser', [
   // Add custom validation that required/imported
@@ -32,15 +31,25 @@ router.post('/createUser', [
       // There are validation errors, render the form with errors
       res.render('hello-world', { errors, email: req.body.email });
     } else {
-      // No validation errors, proceed with rendering the form data
-      const email = req.body.email;
-      res.render('form-data', {
-        email,
-        allData: req.body
+      const { email, password } = req.body;
+
+
+      // Create a new User object
+      const newUser = new User({
+      email,
+      password,
+      });
+     
+      // Save the User object to the database
+      newUser.save()
+      .then(() => {
+      res.render('form-data',{message:"Data saved to db"});
+      })
+      .catch((error) => {
+      console.error(error);
+      
       });
     }
   });
  
-
-
 module.exports = router;
