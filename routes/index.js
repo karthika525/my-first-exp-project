@@ -58,4 +58,17 @@ router.get('/getUser', function (req,res) {
   router.get('/about-us', function (req,res) {
     res.render('about-us')
   })
+
+  router.get('/page/:title', (req, res) => {
+    const title = req.params.title;
+   res.render('page',{str:title})
+});
+router.get('/login', (req, res) => {
+    res.redirect('/')
+});
+
+ router.get('/count/:num', (req, res) => {
+  const count = req.params.num;
+  res.render('count',{count:count})
+});
 module.exports = router;
