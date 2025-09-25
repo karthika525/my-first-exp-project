@@ -3,9 +3,8 @@ body {
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
   background-color: bisque;
 }
-
-a {
-  color: #00B7FF;
+p {
+  background-color:rgb(166, 166, 213)
 }
  .highlight{
     background-color: green;
