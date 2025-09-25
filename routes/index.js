@@ -2,31 +2,45 @@ var express = require('express');
 var router = express.Router();
 
 
-const { validationResult ,check } = require('express-validator');
+const { validationResult } = require('express-validator');
+const {validateEmail,validatePassword} = require('./customValidators')
 
 router.get('/', function(req, res) {
+
+
   res.render("hello-world", { errors: [] });
+
+
 });
 
 router.post('/createUser', [
-  
-  check('email').isEmail().withMessage('Invalid email address'),
-  check('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters long')
-], function(req, res) {
+  // Add custom validation that required/imported
+    validateEmail,
+    validatePassword
+  ], function (req, res) {
+    // Access the validation errors from the request object
+    const errors = req.validationErrors || [];
  
-  const errors = validationResult(req);
+    // Validate the request
+    const validationResultErrors = validationResult(req);
+    if (!validationResultErrors.isEmpty()) {
+      // Merge the errors from validation result into the existing errors
+      errors.push(...validationResultErrors.array());
+    }
+ 
+    if (errors.length > 0) {
+      // There are validation errors, render the form with errors
+      res.render('hello-world', { errors, email: req.body.email });
+    } else {
+      // No validation errors, proceed with rendering the form data
+      const email = req.body.email;
+      res.render('form-data', {
+        email,
+        allData: req.body
+      });
+    }
+  });
+ 
 
 
-  if (!errors.isEmpty()) {
-    // There are validation errors, render the form with errors
-    res.render('hello-world', { errors: errors.array() });
-  } else {
-    // No validation errors, proceed with rendering the form data
-    const email = req.body.email;
-    res.render('form-data', {
-      email: email,
-      allData: req.body
-    });
-  }
-});
 module.exports = router;
