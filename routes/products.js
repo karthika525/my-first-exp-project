@@ -22,5 +22,16 @@ router.post('/create_product', (req, res) => {
             });
     }
 });
+router.get('/retrieve_product', (req, res) => {
+  Product.find()
+    .then(data => {
+      res.render('product/retrieve', { data }); 
+    })
+    .catch(error => {
+      console.error(error);
+      res.status(500).send("Error retrieving products");
+    });
+});
+
 
 module.exports = router;
