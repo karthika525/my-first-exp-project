@@ -81,4 +81,22 @@ router.post('/delete_product/:id',(req, res) =>{
         });
 })
 
+router.get('/listing_page', (req, res) => {
+    const { page = 1, limit = 3 } = req.query; // Set default page and limit
+ 
+    const options = {
+      page: parseInt(page, 10),
+      limit: parseInt(limit, 10),
+    };
+ 
+    Product.paginate({}, options)
+      .then(result => {
+        res.render('product/list', { products: result.docs, pagination: result });
+      })
+      .catch(error => {
+        console.error(error);
+        res.status(500).send('Internal Server Error');
+      });
+  });
+
 module.exports = router;
