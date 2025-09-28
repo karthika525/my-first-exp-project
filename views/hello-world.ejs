@@ -1,19 +1,9 @@
-<% title = 'Login' %>
+<% title = 'Home' %>
 
-
-<h1>Login</h1>
-<form action="/createUser" method="post">
-    <label>Email</label><br>
-    <input type="text" name="email"><br>
-    <label>Password</label><br>
-    <input type="password" name="password"><br>
-    <input type="submit" value="Submit">
+<h1>welcome to home page</h1>
+<% if (email) { %>
+<p><%= email %></p>
+<form action="/logout" >
+<button type="submit">Logout</button>
 </form>
-<!-- for showing the validations -->
-<% if (errors && errors.length > 0) { %>
- <ul>
-     <% errors.forEach(function(error) { %>
-         <li><%= error.msg %></li>
-     <% }); %>
- </ul>
 <% } %>

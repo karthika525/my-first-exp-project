@@ -1,74 +1,137 @@
-var express = require('express');
-var router = express.Router();
+const express = require('express');
+const router = express.Router();
+const bcrypt = require('bcrypt');
 const User = require('../models/userModel');
 const { validationResult } = require('express-validator');
-const {validateEmail,validatePassword} = require('./customValidators')
+const { validateEmail, validatePassword } = require('./customValidators');
 
-
-router.get('/', function(req, res) {
-res.render("hello-world", { errors: [] });
-});
-//route for handling form submission with validations
-router.post('/createUser', [
-  // Add custom validation that required/imported
-    validateEmail,
-    validatePassword
-  ], function (req, res) {
-    // Access the validation errors from the request object
-    const errors = req.validationErrors || [];
-     // Validate the request
-    const validationResultErrors = validationResult(req);
-    if (!validationResultErrors.isEmpty()) {
-      // Merge the errors from validation result into the existing errors
-      errors.push(...validationResultErrors.array());
-    }
-    if (errors.length > 0) {
-      // There are validation errors, render the form with errors
-      res.render('hello-world', { errors, email: req.body.email });
+const isAuthenticated = (allowedDomain) => (req, res, next) => {
+  if (req.session && req.session.userEmail) {
+    const userEmail = req.session.userEmail;
+    console.log('User email:', userEmail);
+    if (!allowedDomain || userEmail.endsWith(allowedDomain)) {
+      return next();
     } else {
-      const { email, password } = req.body;
-      // Create a new User object
-      const newUser = new User({
-      email,
-      password,
-      });
-      // Save the User object to the database
-    newUser.save()
-      .then(() => {
-      res.render('form-data',{
-        message:"Data saved to db"
-      });
-      })
-      .catch((error) => {
-      console.error(error);
-      
-      });
+      return res.status(403).send('unauthorized');
     }
-  });
-// for getting data from db
-router.get('/getUser', function (req,res) {
-     User.find().then(data => {
-         res.render('index', {data:data})
-  }).catch(error => {
-      console.error(error);
-      
-    });
-  })
-//for about-us page
-  router.get('/about-us', function (req,res) {
-    res.render('about-us')
-  })
+  }
+  console.log('User email not found in session:', req.session);
+  res.redirect('/login');
+};
 
-  router.get('/page/:title', (req, res) => {
-    const title = req.params.title;
-   res.render('page',{str:title})
-});
-router.get('/login', (req, res) => {
-    res.redirect('/')
+router.get('/', isAuthenticated(), (req, res) => {
+  const email = req.session.userEmail || null;
+  res.render("hello-world", { email });
 });
 
- router.get('/count/:num', (req, res) => {
+router.get('/about-us', (req, res) => res.render('about-us'));
+
+router.get('/page/:title', (req, res) => res.render('page', { str: req.params.title }));
+
+router.get('/count/:num', isAuthenticated('@example.com'), (req, res) => {
   const count = req.params.num;
-  res.render('count',{count:count})
+  res.render('count', { count });
 });
+
+router.get('/signup', (req, res) => res.render('signup', { message: null, error: null }));
+
+router.post('/signup', (req, res) => {
+  const { email, password, confirmPassword } = req.body;
+  if (password !== confirmPassword) {
+    return res.render('signup', { message: 'Password and Confirm Password do not match', error: null });
+  }
+  const user = new User({ email, password });
+  const validationError = user.validateSync();
+  if (validationError) {
+    return res.render('signup', { message: null, error: validationError.errors });
+  }
+  User.findOne({ email })
+    .then(existingUser => {
+      if (existingUser) {
+        return res.render('signup', { message: 'Email already taken', error: null });
+      }
+      return bcrypt.hash(password, 10);
+    })
+    .then(hashedPassword => {
+      if (!hashedPassword) return;
+      return new User({ email, password: hashedPassword }).save();
+    })
+    .then(() => res.redirect('/login'))
+    .catch(error => {
+      console.error(error);
+      res.render('signup', { message: 'Signup failed', error: null });
+    });
+});
+
+router.get('/login', (req, res) => res.render('login', { errors: [], message: null }));
+
+router.post('/login', [validateEmail, validatePassword], (req, res) => {
+  const errors = req.validationErrors || [];
+  const validationErrors = validationResult(req);
+  if (!validationErrors.isEmpty()) {
+    errors.push(...validationErrors.array());
+  }
+  if (errors.length) {
+    return res.render('login', { errors, message: null });
+  }
+  const { email, password } = req.body;
+  let foundUser;
+  User.findOne({ email })
+    .then(user => {
+      if (!user) {
+        return res.render('login', { message: 'Incorrect Email Address.', errors: [] });
+      }
+      foundUser = user;
+      return bcrypt.compare(password, user.password);
+    })
+    .then(isPasswordValid => {
+      if (!isPasswordValid) {
+        return res.render('login', { message: 'Incorrect password.', errors: [] });
+      }
+      req.session.userId = foundUser._id;
+      req.session.userEmail = foundUser.email;
+      res.render('hello-world', { email: foundUser.email });
+    })
+    .catch(error => {
+      console.error(error);
+      res.status(500).send('Internal Server Error');
+    });
+});
+
+router.get('/logout', (req, res) => {
+  req.session.destroy(err => {
+    if (err) res.send('Error');
+    else res.redirect('/login');
+  });
+});
+
+router.get('/createUser', (req, res) => res.render("hello-world", { errors: [] }));
+
+router.post('/createUser', [validateEmail, validatePassword], (req, res) => {
+  const errors = req.validationErrors || [];
+  const validationErrors = validationResult(req);
+  if (!validationErrors.isEmpty()) {
+    errors.push(...validationErrors.array());
+  }
+  if (errors.length) {
+    return res.render('hello-world', { errors, email: req.body.email });
+  }
+  const { email, password } = req.body;
+  new User({ email, password }).save()
+    .then(() => res.render('form-data', { message: "Data saved to db" }))
+    .catch(error => {
+      console.error(error);
+      res.render('hello-world', { errors: [{ msg: "Failed to save data" }] });
+    });
+});
+
+router.get('/getUser', (req, res) => {
+  User.find()
+    .then(data => res.render('index', { data }))
+    .catch(error => {
+      console.error(error);
+      res.status(500).send("Error retrieving users");
+    });
+});
+
 module.exports = router;
