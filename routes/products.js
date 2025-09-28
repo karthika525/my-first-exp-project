@@ -99,4 +99,17 @@ router.get('/listing_page', (req, res) => {
       });
   });
 
+    // Route to handle page visit
+router.get('/pagevisit', (req, res) => {
+    // Get the current count from the session, or set it to 0 if it doesn't exist
+    const count = req.session.page_count || 0;
+   
+    // Increment the count
+    req.session.page_count = count + 1;
+ 
+    // Render the template with the count variable
+    res.render('product/page_view', { count: req.session.page_count });
+  });
+
+
 module.exports = router;
