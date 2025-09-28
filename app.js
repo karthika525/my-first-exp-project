@@ -10,6 +10,7 @@ var usersRouter = require('./routes/users');
 var contactUsRouter = require('./routes/contact-us');
 const db = require('./database/db');
 const expressLayouts = require('express-ejs-layouts');
+var apiRouter = require('./routes/api');// import the api route
 
 var app = express();
 
@@ -48,6 +49,8 @@ app.use('/products', productsRouter);
 app.use('/contactus', contactUsRouter);
 
 
+
+app.use('/api', apiRouter);// set up for api route
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));
