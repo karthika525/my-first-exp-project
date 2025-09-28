@@ -11,6 +11,7 @@
           <th>Name</th>
           <th>Description</th>
           <th>Price</th>
+          <th colspan="2">Action</th>
         </tr>
       </thead>
       <tbody>
@@ -19,6 +20,8 @@
             <td><%= product.name %></td>
             <td><%= product.description %></td>
             <td><%= product.price %></td>
+            <td><a href="update_product/<%= product._id %>" value="edit" type="submit">Edit</a></td>
+            <td><a href="delete_product/<%= product._id %>" value="delete" type="submit">Delete</a></td>
           </tr>
         <% }); %>
       </tbody>
@@ -26,3 +29,5 @@
   <% } else { %>
     <p>No Products found.</p>
   <% } %>
+
+
