@@ -10,8 +10,7 @@ var usersRouter = require('./routes/users');
 var contactUsRouter = require('./routes/contact-us');
 const db = require('./database/db');
 const expressLayouts = require('express-ejs-layouts');
-var apiRouter = require('./routes/api');// import the api route
-
+var apiRouter = require('./routes/api');
 
 var app = express();
 
@@ -24,7 +23,6 @@ app.use(expressLayouts);
 app.set('layout', 'layouts/main-layout');
 
 // middleware
-app.use('/api', apiRouter);
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -38,7 +36,7 @@ app.use(session({
   saveUninitialized: true,
 }));
 
-// make title available to all views (default fallback)
+// make title available to all views
 app.use((req, res, next) => {
   res.locals.title = 'My Express App';
   next();
@@ -50,9 +48,9 @@ app.use('/users', usersRouter);
 app.use('/products', productsRouter);
 app.use('/contactus', contactUsRouter);
 
+// api routes (place AFTER middleware)
+app.use('/api', apiRouter);
 
-
-app.use('/api', apiRouter);// set up for api route
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));
@@ -68,3 +66,4 @@ app.use(function(err, req, res, next) {
 });
 
 module.exports = app;
+
