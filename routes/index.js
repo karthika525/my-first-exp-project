@@ -28,11 +28,6 @@ router.get('/about-us', (req, res) => res.render('about-us'));
 
 router.get('/page/:title', (req, res) => res.render('page', { str: req.params.title }));
 
-router.get('/count/:num', isAuthenticated('@example.com'), (req, res) => {
-  const count = req.params.num;
-  res.render('count', { count });
-});
-
 router.get('/signup', (req, res) => res.render('signup', { message: null, error: null }));
 
 router.post('/signup', (req, res) => {
