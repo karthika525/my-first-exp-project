@@ -1,6 +1,10 @@
 var express = require('express');
 var router = express.Router();
 const Product = require('../models/productsModel');
+const nodemailer = require('nodemailer');
+const ejs = require('ejs');
+const fs = require('fs').promises;
+const pdf = require('html-pdf-node');
 
 router.get('/create_product', (req, res) => {
   res.render('product/create', { error: null });
@@ -110,10 +114,6 @@ router.get('/pagevisit', (req, res) => {
     // Render the template with the count variable
     res.render('product/page_view', { count: req.session.page_count });
   });
-// Import required packages
-const ejs = require('ejs');
-const fs = require('fs').promises;
-const pdf = require('html-pdf-node');
 
 router.get('/generate-pdf/:id', async (req, res) => {
     try {
@@ -141,6 +141,48 @@ router.get('/generate-pdf/:id', async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 });
+router.get('/send_product_email/:id', async (req, res) => {
+  try {
+    // Assuming a Product model or equivalent
+    const product = await Product.findById(req.params.id);
 
+
+    // Create a nodemailer transport object
+    
+  var transport = nodemailer.createTransport({
+  host: "sandbox.smtp.mailtrap.io",
+  port: 2525,
+  auth: {
+    user: "80e0589af08d46",
+    pass: "2a1333ad791562"
+  }
+});
+
+
+    const template = await fs.readFile('./views/product/product_email.ejs', 'utf8');
+    // Email content
+    const mailOptions = {
+      from: 'user123@gmail.com', // Sender email address
+      to: 'abcd123@mailtrap.io', // Receiver email address
+      subject: `New Product: ${product.name}`, // Email subject
+      html: ejs.render(template, { product }) // Render HTML using EJS
+    };
+
+
+    // Send the email
+    const info = await transport.sendMail(mailOptions);
+    console.log('Email sent:', info.response);
+
+
+    // Close the transport after sending the email
+    transport.close();
+
+
+    res.send('Email sent successfully');
+  } catch (error) {
+    console.error('Error sending email:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
 
 module.exports = router;

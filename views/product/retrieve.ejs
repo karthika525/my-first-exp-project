@@ -1,9 +1,5 @@
 <% title='Product List' %>
-
-
   <h1>Product List</h1>
-
-
   <% if (data.length > 0) { %>
     <table>
       <thead>
@@ -11,7 +7,7 @@
           <th>Name</th>
           <th>Description</th>
           <th>Price</th>
-          <th colspan="3">Action</th>
+          <th colspan="4">Action</th>
         </tr>
       </thead>
       <tbody>
@@ -23,6 +19,7 @@
             <td><a href="update_product/<%= product._id %>" value="edit" type="submit">Edit</a></td>
             <td><a href="delete_product/<%= product._id %>" value="delete" type="submit">Delete</a></td>
             <td><a href="generate-pdf/<%= product._id %>" value="pdf" type="submit">PDF</a></td>
+            <td><a href="send_product_email/<%= product._id %>" value="mail" type="submit">Send Mail</a></td>
           </tr>
         <% }); %>
       </tbody>
