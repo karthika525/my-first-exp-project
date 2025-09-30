@@ -145,4 +145,61 @@ router.post('/signupapi', (req, res) => {
       });
   });
 
+  // for generating  secret key
+const crypto = require('crypto');
+
+const generateSecretKey = () => {
+  return crypto.randomBytes(32).toString('hex');
+};
+console.log(generateSecretKey());
+
+  const jwt = require('jsonwebtoken');
+
+
+  // Login API
+  router.post('/loginapi', (req, res) => {
+    User.findOne({ email: req.body.email })
+      .then(user => {
+        if (!user || !bcrypt.compare(req.body.password,user.password)) {
+          return res.status(401).json({ message: 'Invalid credentials' });
+        }
+ 
+        // Generate a JWT token
+        const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET = generateSecretKey(), { expiresIn: '1h' });
+ 
+        // Send the token in the response
+        res.status(200).json({ token });
+      })
+      .catch(error => {
+        console.error(error);
+        res.status(500).json({ message: 'Internal Server Error' });
+      });
+  });
+
+  // for verifying token for protected route
+
+
+const verifyToken = (req, res, next) => {
+    const token = req.headers.authorization;
+ 
+    if (!token) {
+      return res.status(401).json({ message: 'Unauthorized - Missing token' });
+    }
+ 
+    jwt.verify(token.split(' ')[1], process.env.JWT_SECRET , (err, decoded) => {
+      if (err) {
+        return res.status(401).json({ message: 'Unauthorized - Invalid token' });
+      }
+ 
+      req.userId = decoded.userId;
+      next();
+    });
+  };
+   //added verifyToken for securing the route
+
+
+  router.post('/create_product_api',verifyToken, (req, res) => {
+      //  code......
+});
+
 module.exports = router;
