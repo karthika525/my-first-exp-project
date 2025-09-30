@@ -110,6 +110,37 @@ router.get('/pagevisit', (req, res) => {
     // Render the template with the count variable
     res.render('product/page_view', { count: req.session.page_count });
   });
+// Import required packages
+const ejs = require('ejs');
+const fs = require('fs').promises;
+const pdf = require('html-pdf-node');
+
+router.get('/generate-pdf/:id', async (req, res) => {
+    try {
+        const productId = req.params.id;
+        
+        // Fetch product data from database
+        const product = await Product.findById(productId);
+        
+        // Read and render the EJS template with product data
+        const template = await fs.readFile('./views/product/product_pdf_template.ejs', 'utf8');
+        const html = ejs.render(template, { product });
+        
+        // Create PDF options
+        const options = { format: 'A4' };
+
+        // Generate PDF buffer
+        const pdfBuffer = await pdf.generatePdf({ content: html }, options);
+
+        // Set the response headers and send the PDF
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `attachment; filename="${product.name}.pdf"`);
+        res.send(pdfBuffer);
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
 
 
 module.exports = router;
